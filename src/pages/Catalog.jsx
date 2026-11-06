@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Filter, SlidersHorizontal, RotateCcw, Search, ChevronRight } from 'lucide-react';
+import { Filter, SlidersHorizontal, RotateCcw, Search, ChevronRight, X } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { products, formatPrice } from '../data/products';
 import { categories } from '../data/categories';
@@ -104,6 +104,8 @@ const Catalog = () => {
 
   const activeCategoryObject = categories.find(c => c.slug === categoryParam);
 
+  const hasActiveFilters = categoryParam || searchParam || minPrice || maxPrice || onlyDiscounted || selectedRating > 0;
+
   return (
     <div className="container">
       {/* Breadcrumbs */}
@@ -138,13 +140,15 @@ const Catalog = () => {
             <h3 style={{ fontSize: '16px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <SlidersHorizontal size={18} /> Filtrlar
             </h3>
-            <button
-              onClick={handleResetFilters}
-              style={{ fontSize: '12px', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
-              title="Filtrlarni tozalash"
-            >
-              <RotateCcw size={12} /> Tozalash
-            </button>
+            {hasActiveFilters && (
+              <button
+                onClick={handleResetFilters}
+                style={{ fontSize: '12px', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                title="Filtrlarni tozalash"
+              >
+                <RotateCcw size={12} /> Tozalash
+              </button>
+            )}
           </div>
 
           {/* Categories Filter */}
@@ -293,6 +297,47 @@ const Catalog = () => {
             </div>
           </div>
 
+          {/* Active Filter Pills */}
+          {hasActiveFilters && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Faol filtrlar:</span>
+              {categoryParam && (
+                <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  {activeCategoryObject?.name}
+                  <X size={14} style={{ cursor: 'pointer' }} onClick={() => handleCategorySelect('')} />
+                </span>
+              )}
+              {searchParam && (
+                <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  "{searchParam}"
+                  <X size={14} style={{ cursor: 'pointer' }} onClick={() => {
+                    const newParams = new URLSearchParams(searchParams);
+                    newParams.delete('q');
+                    setSearchParams(newParams);
+                  }} />
+                </span>
+              )}
+              {(minPrice || maxPrice) && (
+                <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  {minPrice ? `${minPrice} dan` : ''} {maxPrice ? `${maxPrice} gacha` : ''}
+                  <X size={14} style={{ cursor: 'pointer' }} onClick={() => { setMinPrice(''); setMaxPrice(''); }} />
+                </span>
+              )}
+              {onlyDiscounted && (
+                <span style={{ background: '#FFF1F0', color: 'var(--accent-red)', padding: '4px 10px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  Chegirmadagi tovarlar
+                  <X size={14} style={{ cursor: 'pointer' }} onClick={() => setOnlyDiscounted(false)} />
+                </span>
+              )}
+              {selectedRating > 0 && (
+                <span style={{ background: '#FEF3C7', color: '#B45309', padding: '4px 10px', borderRadius: '16px', fontSize: '12px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  ★ {selectedRating}+
+                  <X size={14} style={{ cursor: 'pointer' }} onClick={() => setSelectedRating(0)} />
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Product Grid */}
           {sortedProducts.length > 0 ? (
             <div className="product-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}>
@@ -331,4 +376,3 @@ const Catalog = () => {
 };
 
 export default Catalog;
-
