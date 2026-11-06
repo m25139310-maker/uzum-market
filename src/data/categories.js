@@ -120,3 +120,4 @@ export const categories = [
     image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=400&q=80"
   }
 ];
+
